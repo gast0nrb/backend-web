@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model CATEGORIA {
+  id           Int            @id @default(autoincrement())
+  nombre       String?        @db.VarChar(255)
+  SUBCATEGORIA SUBCATEGORIA[]
+}
+
+model FILES {
+  fk_codigo String?   @db.VarChar(255)
+  ruta      String?   @db.VarChar(255)
+  nombre    String?   @db.VarChar(255)
+  id        Int       @id @default(autoincrement())
+  PRODUCTO  PRODUCTO? @relation(fields: [fk_codigo], references: [codigo], onDelete: NoAction, onUpdate: NoAction, map: "FILES_ibfk_1")
+
+  @@index([fk_codigo], map: "fk_codigo")
+}
+
+model HISTORIA_PRECIO {
+  fk_producto String @db.VarChar(255)
+  fk_lista    Int
+  monto       Float
+
+  @@id([fk_producto, fk_lista])
+}
+
+model LISTA_PRECIO {
+  id     Int      @id @default(autoincrement())
+  nombre String?  @db.VarChar(255)
+  PRECIO PRECIO[]
+}
+
+model PRECIO {
+  fk_producto  String       @db.VarChar(255)
+  fk_lista     Int
+  monto        Float
+  PRODUCTO     PRODUCTO     @relation(fields: [fk_producto], references: [codigo], onDelete: NoAction, onUpdate: NoAction, map: "PRECIO_ibfk_1")
+  LISTA_PRECIO LISTA_PRECIO @relation(fields: [fk_lista], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "PRECIO_ibfk_2")
+
+  @@id([fk_producto, fk_lista])
+  @@index([fk_lista], map: "fk_lista")
+}
+
+model PRODUCTO {
+  codigo          String        @id @db.VarChar(255)
+  barra           String?       @db.VarChar(255)
+  costo           Float?
+  fk_subcategoria Int?
+  activo          Boolean?
+  descripcion     String?       @db.VarChar(255)
+  titulo          String?       @db.VarChar(255)
+  medida          String?       @db.VarChar(255)
+  FILES           FILES[]
+  PRECIO          PRECIO[]
+  SUBCATEGORIA    SUBCATEGORIA? @relation(fields: [fk_subcategoria], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "PRODUCTO_ibfk_1")
+
+  @@index([fk_subcategoria], map: "fk_subcategoria")
+}
+
+model SUBCATEGORIA {
+  id           Int        @id @default(autoincrement())
+  nombre       String?    @db.VarChar(255)
+  fk_categoria Int?
+  PRODUCTO     PRODUCTO[]
+  CATEGORIA    CATEGORIA? @relation(fields: [fk_categoria], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "SUBCATEGORIA_ibfk_1")
+
+  @@index([fk_categoria], map: "fk_categoria")
+}
+
+model PRIVILEGIO {
+  id     Int     @id @default(autoincrement())
+  nombre String? @db.VarChar(255)
+  USER   USER[]
+}
+
+model USER {
+  id            Int         @id @default(autoincrement())
+  nombre        String?     @db.VarChar(255)
+  correo        String?     @db.VarChar(255)
+  hash          String?     @db.VarChar(255)
+  fk_privilegio Int?
+  PRIVILEGIO    PRIVILEGIO? @relation(fields: [fk_privilegio], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "USER_ibfk_1")
+
+  @@index([fk_privilegio], map: "fk_privilegio")
+}
