@@ -1,13 +1,26 @@
-const {Router} = require("express");
-const {createCategoria,getCategorias, getCategoria} = require("../Controllers/categoria")
-const router = Router()
+const { Router } = require("express");
+const {
+  createCategoria,
+  getCategorias,
+  getCategoria,
+  deleteCategoria,
+  updateCategoria,
+  getSubcategoriasByCategoria,
+} = require("../Controllers/categoria");
+const router = Router();
 
-router.route("/categorias")
-.post(createCategoria)
-.get(getCategorias)
 
-router.route("/categorias/:id").get(getCategoria)
+//Routes without id /categoria
+router.route("/categorias").post(createCategoria).get(getCategorias);
 
+//By id routes /categoria/:id
+router
+  .route("/categorias/:id")
+  .get(getCategoria)
+  .delete(deleteCategoria)
+  .put(updateCategoria);
 
+//Nest route /categorias/subcategorias
+router.route("/categorias/:id/subcategorias").get(getSubcategoriasByCategoria);
 
 module.exports = router;
